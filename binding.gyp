@@ -1,26 +1,29 @@
 {
     'targets': [
         {
-            'target_name': 'win-wavplay',
+            'target_name': 'wavplay',
             'sources': [
                 './src/main.cc',
-                './src/win32/WinPlayer.cc',
+                './src/wavplay.cc',
                 './src/ext/gwutils/Flags.cpp',
                 './src/ext/gwutils/Logger.cpp',
                 './src/ext/gwutils/ThreadSafe.cpp',
-                './src/ext/gwutils/CharsetUtil.cpp',
             ],
 
             'include_dirs': [
                 './src',
-                './src/win32',
-                './src/gwutils'
+                './src/win',
+                './src/ext/gwutils'
             ],
 
             'conditions': [
                 ['OS == "win"', {
                     'defines': [
+                        'WIN32',
                         'UNICODE',
+                    ],
+                    'sources': [
+                        './src/win/WinPlayer.cc',
                     ],
                     'libraries': ['winmm.lib'],
                     'configurations' : {
@@ -50,6 +53,9 @@
                     }
                 }],
                 ['OS == "mac"', {
+                    'sources': [
+                        './src/mac/MacPlayer.cc',
+                    ],
                     'xcode_settings': {
                         'GCC_ENABLE_CPP_RTTI': 'YES',
                         "OTHER_CFLAGS": [

@@ -1,3 +1,5 @@
+#include "wavplay.h"
+
 /**
  * Basic Player class
  */
