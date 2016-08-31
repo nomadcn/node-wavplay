@@ -1,0 +1,12 @@
+Debug/
+Release/
+node_modules/
+build/
+
+*.log
+*.opensdf
+*.lib
+*.dll
+*.sdf
+*.suo
+*.obj
