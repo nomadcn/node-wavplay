@@ -15,8 +15,7 @@ static int isFileExistent(const char* path)
     return (fp == NULL) ? 0 : 1;
 }
 
-MacPlayer::MacPlayer() :
-m_pid(0)
+MacPlayer::MacPlayer()
 {
 }
 
@@ -41,6 +40,16 @@ int MacPlayer::Open(const Player::Param* param)
         if (isFileExistent(param->filePath))
         {
             m_wavFilePath = param->filePath;
+
+            memset(&m_processHandle, 0, sizeof(m_processHandle));
+
+            memset(&m_processOpts, 0, sizeof(m_processOpts));
+            m_processOpts.exit_cb = MacPlayer::ExitCb;
+            m_processOpts.args = m_processArgs;
+            m_processOpts.file = "/usr/bin/afplay";
+            m_processArgs[0] = (char*)m_processOpts.file; 
+            m_processArgs[1] = (char*)m_wavFilePath.c_str();
+            m_processArgs[2] = NULL;
         }
     }
 
@@ -49,10 +58,14 @@ int MacPlayer::Open(const Player::Param* param)
     return 0;
 }
 
+void MacPlayer::ExitCb(uv_process_t* process, int64_t exitStatus, int termSignal)
+{
+    LOGD_CALL(TAG, "start");
+    LOGD_CALL(TAG, "end");
+}
+
 int MacPlayer::Start(const int loop)
 {
-    Stop();
-
     LOGD_CALL(TAG, "start");
     Play(loop);
     LOGD_CALL(TAG, "end");
@@ -60,6 +73,16 @@ int MacPlayer::Start(const int loop)
     return 0;
 }
 
+#if 1
+void MacPlayer::Play(const int repeat)
+{
+    uv_loop_t* loop = uv_default_loop();
+    LOGD(TAG, "%s(%d) %s: loop(%p)", __CALL_INFO__, loop);
+
+    int ret = uv_spawn(loop, &m_processHandle, &m_processOpts);
+    LOGD(TAG, "%s(%d) %s: uv_spawn() returns %d", __CALL_INFO__, ret);
+}
+#else
 void MacPlayer::Play(const int loop)
 {
     if (m_wavFilePath.empty())
@@ -93,29 +116,30 @@ void MacPlayer::Play(const int loop)
         m_pid = pid;
     }
 }
+#endif
 
 int MacPlayer::Stop()
 {
     LOGD_CALL(TAG, "start");
 
-    if (m_pid > 0)
-    {
-        LOGI(TAG, "%s(%d) %s: kill pid(%d)", __CALL_INFO__, m_pid);
-        kill(m_pid, SIGKILL);
-        kill(m_pid+1, SIGKILL);
-        m_pid = 0;
-    }
+    Kill();
 
     LOGD_CALL(TAG, "end");
     return 0;
 }
 
+void MacPlayer::Kill()
+{
+    uv_process_kill(&m_processHandle, SIGTERM);
+    uv_close((uv_handle_t*)&m_processHandle, NULL);
+}
+
 int MacPlayer::Close()
 {
-    Stop();
-
     LOGD_CALL(TAG, "start");
+
     m_wavFilePath.clear();
+
     LOGD_CALL(TAG, "end");
 
     return 0;

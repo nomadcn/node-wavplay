@@ -2,6 +2,7 @@
 #include <string>
 #include <State.h>
 #include <unistd.h>
+#include <uv.h>
 
 using namespace std;
 
@@ -17,11 +18,15 @@ public:
     virtual int Close();
 
 private:
-    void Play(const int loop);
+    void Play(const int repeat);
+    void Kill();
+    static void ExitCb(uv_process_t* process, int64_t exitStatus, int termSignal);
 
 private:
     // wav filePath to play
     string m_wavFilePath;
-    // process id of afplay
-    pid_t m_pid;
+
+    uv_process_t m_processHandle;
+    uv_process_options_t m_processOpts;
+    char* m_processArgs[3];
 };
