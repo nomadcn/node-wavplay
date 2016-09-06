@@ -2,9 +2,14 @@
 #include <node.h>
 #include <stdio.h>
 #include <time.h>
-#include "WinPlayer.h"
 #include <gwlog.h>
 #include <string>
+
+#ifdef WIN32
+#include <WinPlayer.h>
+#else
+#include <MacPlayer.h>
+#endif
 
 using namespace v8;
 using namespace std;
@@ -26,7 +31,11 @@ static Player* CreatePlayer()
 {
     if (g_player == NULL)
     {
+#ifdef WIN32
         g_player = new WinPlayer();
+#else
+        g_player = new MacPlayer();
+#endif
     }
 
     return g_player;

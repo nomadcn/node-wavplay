@@ -1,6 +1,6 @@
 {
   "name": "wavplay",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "wav file play",
   "main": "./index.js",
   "private": false,
@@ -19,10 +19,11 @@
   "license": "MIT",
   "binary": {
     "module_name": "wavplay",
-    "module_path": "./lib/binding/{node_abi}-{platform}-{arch}/",
+    "module_path": "./build/Release",
     "remote_path": "/node_modules/{module_name}/v{version}/",
     "package_name": "{module_name}-v{version}-{node_abi}-{platform}-{arch}.tar.gz",
-    "host": "http://www.nomadconnection.com:30020"
+    "host": "https://github.com/goldworm/wavplay/release/download/",
+    "remote_path": "{version}"
   },
   "dependencies": {
     "nan": "2.x",

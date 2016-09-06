@@ -12,7 +12,6 @@
 
             'include_dirs': [
                 './src',
-                './src/win',
                 './src/ext/gwutils'
             ],
 
@@ -21,6 +20,9 @@
                     'defines': [
                         'WIN32',
                         'UNICODE',
+                    ],
+                    'include_dirs': [
+                        './src/win'
                     ],
                     'sources': [
                         './src/win/WinPlayer.cc',
@@ -53,6 +55,9 @@
                     }
                 }],
                 ['OS == "mac"', {
+                    'include_dirs': [
+                        './src/mac'
+                    ],
                     'sources': [
                         './src/mac/MacPlayer.cc',
                     ],
