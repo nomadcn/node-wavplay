@@ -1,0 +1,3 @@
+#!/bin/sh
+
+export set NODE_PRE_GYP_GITHUB_TOKEN=3a405a529ea8acaf9d16547a425524515e7a1e85
