@@ -14,7 +14,7 @@
     "wav",
     "play"
   ],
-  "os": ["mac", "win32"],
+  "os": ["darwin", "win32"],
   "author": "Chiwon Cho <goldworm@nomadconnection.com>",
   "license": "MIT",
   "binary": {

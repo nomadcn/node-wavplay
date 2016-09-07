@@ -55,6 +55,10 @@
                     }
                 }],
                 ['OS == "mac"', {
+                    'defines': [
+                        'MAC',
+                        'OSX',
+                    ],
                     'include_dirs': [
                         './src/mac'
                     ],
