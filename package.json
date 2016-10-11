@@ -15,25 +15,21 @@
     "play"
   ],
   "os": ["darwin", "win32"],
-  "author": "Chiwon Cho <goldworm@nomadconnection.com>",
+  "author": "callsync@nomadconnection.com",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nomadcn/node-wavplay.git"
+  },
   "binary": {
     "module_name": "wavplay",
-    "module_path": "./build/Release",
-    "remote_path": "/node_modules/{module_name}/v{version}/",
+    "module_path": "./lib/binding/{configuration}/{node_abi}-{platform}-{arch}/",
     "package_name": "{module_name}-v{version}-{node_abi}-{platform}-{arch}.tar.gz",
-    "host": "https://github.com/goldworm/wavplay/release/download/",
+    "host": "https://github.com/nomadcn/node-wavplay/releases/download/",
     "remote_path": "{version}"
   },
   "dependencies": {
     "nan": "2.x",
     "node-pre-gyp": "0.6.x"
-  },
-  "devDependencies": {
-    "aws-sdk": "2.x"
-  },
-  "repository": {
-    "type" : "git",
-    "url"  : "https://goldworm@bitbucket.org/skthandoffappdev/wavplay.git"
   }
 }
