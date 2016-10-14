@@ -1,23 +1,23 @@
-# wavplay-prebuilt
-wavplay prebuilt version for electron
+# wavplay
+wavplay version for electron
 
 ## Change Log
 * 1.0.0 - 2016.09.06
-  * wavplay-prebuilt version for electron-1.3.4
+  * wavplay-prebuilt version for electron-1.3 and 1.4.
   * win32 version works well. (PlaySound api)
   * mac: use /usr/bin/afplay command.
 
 ## Dependencies
-* electron-prebuilt: 1.3.4
+* node-pre-gyp
 
 ## Installation
 ```
-npm install wavply-prebuilt
+npm install wavply
 ```
 
 ## How to use
 ```
-const wav = require('wavplay-prebuilt')
+const wav = require('wavplay')
 
 // log file is optional.
 var ret = wav.init('wav.log')
