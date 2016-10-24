@@ -53,7 +53,7 @@ private:
 	void Unlock();
 	void FillLog(const int nLevel, const char* szTAG, const char* szMessage);
 	void FillCurrentDateTimeString(char* szBuf, const int nBufSize);
-	unsigned int GetCurrentThreadID() const;
+	uint64_t GetCurrentThreadID() const;
 
 	void PrintToConsole(const int nLevel, const char* szTAG);
 	void PrintToFile();

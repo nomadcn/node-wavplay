@@ -4,6 +4,31 @@
 #include <sstream>
 #include <stdlib.h>
 
+/**
+10-25 05:12:47.029: DEBUG/wavplay(207481): MacPlayer.cc(198) Stop: start
+10-25 05:12:47.029: DEBUG/wavplay(207481): MacPlayer.cc(216) Kill: start
+10-25 05:12:47.029: INFO/wavplay(207481): MacPlayer.cc(221) Kill: handle(0x7fc13a8df5e0) pid(9887) is killed.
+10-25 05:12:47.029: DEBUG/wavplay(207481): MacPlayer.cc(119) CloseProcessHandle: start handle(0x7fc13a8df5e0) pid(9887)
+10-25 05:12:47.029: DEBUG/wavplay(207481): MacPlayer.cc(133) CloseProcessHandle: handle->flags(24576)
+10-25 05:12:47.029: DEBUG/wavplay(207481): MacPlayer.cc(135) CloseProcessHandle: handle->flags(8193)
+10-25 05:12:47.029: DEBUG/wavplay(207481): MacPlayer.cc(137) CloseProcessHandle: end
+10-25 05:12:47.029: DEBUG/wavplay(207481): MacPlayer.cc(227) Kill: end
+10-25 05:12:47.029: DEBUG/wavplay(207481): MacPlayer.cc(210) Stop: end
+10-25 05:12:47.029: DEBUG/wavplay(207481): MacPlayer.cc(232) Close: start
+// 여기서 handle을 해제하고 또 아래서 free를 해주면서 오류 발생
+10-25 05:12:47.029: DEBUG/wavplay(207481): MacPlayer.cc(312) ClearProcessHandles: processHandles(0)
+10-25 05:12:47.029: DEBUG/wavplay(207481): MacPlayer.cc(246) Close: end
+10-25 05:12:47.029: DEBUG/wavplay(207481): main.cc(153) Stop: end
+10-25 05:12:47.049: DEBUG/wavplay(207481): MacPlayer.cc(106) CloseCb: start handle(0x7fc13a8df5e0) data(0x7fc1384646d0)
+10-25 05:12:47.049: DEBUG/wavplay(207481): MacPlayer.cc(108) CloseCb
+10-25 05:12:47.049: DEBUG/wavplay(207481): MacPlayer.cc(110) CloseCb
+// 여기서 죽는 문제가 발생하였음. (맥에서 두번째 전화를 받는 순간 죽는 문제)
+10-25 05:12:47.049: DEBUG/wavplay(207481): MacPlayer.cc(268) RemoveProcessHandle: start handles(0)
+10-25 05:12:47.049: DEBUG/wavplay(207481): MacPlayer.cc(297) RemoveProcessHandle: end processHandles(0)
+10-25 05:12:47.049: DEBUG/wavplay(207481): MacPlayer.cc(112) CloseCb
+10-25 05:12:47.049: DEBUG/wavplay(207481): MacPlayer.cc(114) CloseCb: end
+**/
+
 static int isFileExistent(const char* path)
 {
     FILE* fp = fopen(path, "rb");
@@ -16,9 +41,9 @@ static int isFileExistent(const char* path)
 }
 
 MacPlayer::MacPlayer() :
-m_state(gw::eLCS_INIT)
-,m_processHandle(NULL)
+m_processHandle(NULL)
 {
+    m_state.SetState(gw::eLCS_INIT);
 }
 
 MacPlayer::~MacPlayer()
@@ -53,9 +78,13 @@ int MacPlayer::Open(const Player::Param* param)
 
             m_state.SetState(gw::eLCS_OPEN);
         }
+        else {
+            LOGE_CALL(TAG, "param->filePath is wrong.");
+        }
     }
 
-    LOGD_CALL(TAG, "end");
+    LOGD(TAG, "%s(%d) %s: end state(%d)",
+        __CALL_INFO__, m_state.GetState());
 
     return 0;
 }
@@ -99,7 +128,7 @@ void MacPlayer::ExitCb(uv_process_t* handle, int64_t exitStatus, int termSignal)
 
 void MacPlayer::CloseCb(uv_handle_t* handle)
 {
-    LOGD(TAG, "%s(%d) %s: start handle(%p)", __CALL_INFO__, handle);
+    LOGD(TAG, "%s(%d) %s: start handle(%p) data(%p)", __CALL_INFO__, handle, handle->data);
 
     MacPlayer* _this = (MacPlayer*)handle->data;
     _this->RemoveProcessHandle((uv_process_t*)handle);
@@ -231,7 +260,7 @@ int MacPlayer::Close()
         return -1;
     }
 
-    ClearProcessHandles();
+    //ClearProcessHandles();
     
     m_wavFilePath.clear();
     m_state.SetState(gw::eLCS_INIT);
@@ -246,6 +275,8 @@ int MacPlayer::Close()
 
 int MacPlayer::AddProcessHandle(uv_process_t* handle)
 {
+    LOGD(TAG, "%s(%d) %s: handle(%p)", __CALL_INFO__, handle);
+
     m_processHandles.push_back(handle);
     m_processHandle = handle;
 
@@ -256,6 +287,8 @@ int MacPlayer::AddProcessHandle(uv_process_t* handle)
 
 int MacPlayer::RemoveProcessHandle(uv_process_t* handle)
 {
+    LOGD(TAG, "%s(%d) %s: start handles(%d)", __CALL_INFO__, m_processHandles.size());
+
     HANDLE_VECTOR::iterator it = m_processHandles.begin();
     HANDLE_VECTOR::iterator itEnd = m_processHandles.end();
 
@@ -264,11 +297,14 @@ int MacPlayer::RemoveProcessHandle(uv_process_t* handle)
         if (*it == handle)
         {
             m_processHandles.erase(it);
-            free(handle);
             break;
         }
 
         ++it;
+    }
+
+    if (handle) {
+        free(handle);
     }
 
     const size_t size = m_processHandles.size();
@@ -277,10 +313,11 @@ int MacPlayer::RemoveProcessHandle(uv_process_t* handle)
         m_processHandle = NULL;
     }
 
-    LOGD(TAG, "%s(%d) %s: processHandles(%d)", __CALL_INFO__, size);
+    LOGD(TAG, "%s(%d) %s: end processHandles(%d)", __CALL_INFO__, size);
     return 0;
 }
 
+#if 0
 int MacPlayer::ClearProcessHandles()
 {
     const int size = m_processHandles.size();
@@ -296,3 +333,4 @@ int MacPlayer::ClearProcessHandles()
 
     return 0;
 }
+#endif

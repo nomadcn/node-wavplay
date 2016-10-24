@@ -250,38 +250,33 @@ void Logger::PrintToFile()
 	}
 }
 
-unsigned int Logger::GetCurrentThreadID() const
+uint64_t Logger::GetCurrentThreadID() const
 {
-	unsigned int nThreadID;
+	uint64_t tid;
 
 #if defined(WIN32)
-
-	nThreadID = GetCurrentThreadId();
-
-#elif defined(OSX) || defined(LINUX)
-
-	nThreadID = syscall(SYS_gettid);
-
+	tid = GetCurrentThreadId();
+#elif defined(OSX)
+    pthread_threadid_np(NULL, &tid);
+#elif defined(LINUX)
+	tid = syscall(SYS_gettid);
 #else
 	// ANDROID
-	nThreadID = gettid();
-
+	tid = gettid();
 #endif
 
-	return nThreadID;
+	return tid;
 }
 
 void Logger::FillLog(const int nLevel, const char* szTAG, const char* szMessage)
 {
 	char szDate[128];
-	unsigned int nThreadID;
-
-	nThreadID = GetCurrentThreadID();
+	const uint64_t tid = GetCurrentThreadID();
 
 	FillCurrentDateTimeString(szDate, sizeof(szDate));
 
-	gw_snprintf(m_szLog, m_nBufSize, "%s: %s/%s(%u): %s",
-		szDate, SZ_LOG_LEVEL[nLevel], szTAG, nThreadID, szMessage);
+	gw_snprintf(m_szLog, m_nBufSize, "%s: %s/%s(%lld): %s",
+		szDate, SZ_LOG_LEVEL[nLevel], szTAG, tid, szMessage);
 }
 
 void Logger::FillCurrentDateTimeString(char* szBuf, const int nBufSize)
